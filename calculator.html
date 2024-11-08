@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #141414;
+            overflow: hidden;
+            color: #fff;
+        }
+        .container {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            animation-delay: 3.5s; /* Delay the fade-in until the welcome message animation completes */
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+        input, select, button {
+            width: calc(100% - 22px); /* Adjusting the width to fit within the container without overflowing */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #666;
+            border-radius: 4px;
+            color: #fff;
+            background-color: #444;
+        }
+        button {
+            background-color: #e50914;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #b00610;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result span {
+            font-weight: bold;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px; /* Adding space between the input fields */
+        }
+        .welcome-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-100%);
+            font-size: 24px;
+            background-color: #e50914;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            opacity: 1;
+            animation: slideDown 1s forwards, fadeOut 1s forwards 2.5s;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        @keyframes slideDown {
+            to {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-message">Welcome to my website</div>
+    <div class="container">
+        <h1>Attendance Calculator</h1>
+        <p>Find out the number of classes you can bunk while still maintaining the required attendance percentage.</p>
+        <form id="attendanceForm">
+            <input type="number" id="percentageRequired" placeholder="Required Percentage" value="75" required>
+            <div class="form-group">
+                <input type="number" id="present" placeholder="Present" required>
+                <input type="number" id="bonusPresent" placeholder="Bonus Attendance">
+            </div>
+            <input type="number" id="total" placeholder="Total" required>
+            <button type="button" onclick="calculateAttendance()">Calculate</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateAttendance() {
+            const percentageRequired = parseFloat(document.getElementById('percentageRequired').value);
+            const present = parseInt(document.getElementById('present').value);
+            const bonusPresent = parseInt(document.getElementById('bonusPresent').value) || 0; // Default to 0 if not provided
+            const total = parseInt(document.getElementById('total').value);
+
+            const totalPresent = present + bonusPresent;
+            const currentAttendance = (totalPresent / total) * 100;
+            const maxBunkClasses = Math.floor((totalPresent - (percentageRequired / 100) * total) / (percentageRequired / 100));
+            const newTotal = total + maxBunkClasses;
+            const newAttendance = (totalPresent / newTotal) * 100;
+
+            if (currentAttendance >= percentageRequired) {
+                document.getElementById('result').innerHTML = `
+                    You can bunk for <span>${maxBunkClasses}</span> more classes.<br>
+                    Current Attendance: <span>${totalPresent}/${total} → ${currentAttendance.toFixed(2)}%</span><br>
+                    Attendance Then: <span>${totalPresent}/${newTotal} → ${newAttendance.toFixed(2)}%</span>
+                `;
+            } else {
+                const requiredClasses = Math.ceil((percentageRequired / 100 * total - totalPresent) / (1 - percentageRequired / 100));
+                document.getElementById('result').innerHTML = `
+                    Your current attendance is <span>${currentAttendance.toFixed(2)}%</span>.<br>
+                    To meet the required attendance percentage of <span>${percentageRequired}%</span>, you need to attend at least <span>${requiredClasses}</span> more classes.
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
